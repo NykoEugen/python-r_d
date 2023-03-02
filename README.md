@@ -1,2 +1,1 @@
-First repository
-try to push to git
+First repository try to push to git
