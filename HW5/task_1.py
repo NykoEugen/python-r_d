@@ -5,9 +5,8 @@
 # це “буква” + яка вона (велика чи маленька),
 # це “символ”
 sample_text = input("Input some text: ")
-st_list = list(sample_text)
 
-for symbol in st_list:
+for symbol in sample_text:
     if symbol.isalpha():
         if symbol.islower():
             print(f"The symbol {symbol} is letter and lower case")
