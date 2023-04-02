@@ -78,24 +78,24 @@ def show_contact(first_name, last_name):
 
 def main():
     print("Phone book has next command: stats, list, add , delete , show , close")
-    in_request = input("Print your command: ")
-    if in_request.lower() == "stats":
+    in_request = input("Print your command: ").lower()
+    if in_request == "stats":
         statistic()
 
-    if in_request.lower() == "add":
+    if in_request == "add":
         in_request = input("Print: Name, Last name, Phone number: ")
         full_info = list(in_request.split(", "))
         add_contact(full_info[0], full_info[1], full_info[2])
 
-    if in_request.lower() == "delete":
+    if in_request == "delete":
         in_request = input("Print: Name Last name: ")
         dell_info = list(in_request.split(" "))
         delete_contact(dell_info[0], dell_info[1])
 
-    if in_request.lower() == "list":
+    if in_request == "list":
         lst_contact()
 
-    if in_request.lower() == "show":
+    if in_request == "show":
         in_request = input("Print: Name Last name: ")
         show_info = list(in_request.split(" "))
         show_contact(show_info[0], show_info[1])
