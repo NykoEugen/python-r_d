@@ -4,20 +4,11 @@ set2 = {3, 7, 5, 6, 8, 10, 32, 69, 71}
 
 
 def similar_units(set_1, set_2):
-    lst1 = list(set_1)
-    lst2 = list(set_2)
-    similar_list = list()
-    for item in lst1:
-        for item_2 in lst2:
-            if item == item_2:
-                similar_list.append(item)
-            else:
-                continue
-    similar_set = set(similar_list)
-    return print(similar_set)
+    similar_units = set_1.intersection(set_2)
+    return similar_units
 
 
-similar_units(set1, set2)
+print(similar_units(set1, set2))
 
 
 
