@@ -16,8 +16,10 @@ def statistic():
 def add_contact(first_name, last_name, phone_number):
     frst_name = first_name.capitalize()
     lst_name = last_name.capitalize()
-    if not phone_number.isdigit():
-        return print("Invalid number, only numeric")
+    try:
+        int(phone_number)
+    except ValueError:
+        return print(f"Phone number should contain only numeric")
 
     if len(phone_book) == 0:
         contact_info = {"name": frst_name,
@@ -76,31 +78,44 @@ def show_contact(first_name, last_name):
         return print(f"Contact {frst_name} {lst_name} doesn't exist")
 
 
+def check_request(command, request_str):
+    request = request_str.replace(" ", "")
+    info = list(request.split(","))
+    try:
+        if command == "add":
+            add_contact(info[0], info[1], info[2])
+        if command == "delete":
+            delete_contact(info[0], info[1])
+        if command == "show":
+            show_contact(info[0], info[1])
+    except IndexError:
+        return print("Some argument doesn't fill")
+
+
 def main():
+    print("=======================================================================")
     print("Phone book has next command: stats, list, add , delete , show , close")
     in_request = input("Print your command: ").lower()
     if in_request == "stats":
         statistic()
 
     if in_request == "add":
-        in_request = input("Print: Name, Last name, Phone number: ")
-        full_info = list(in_request.split(", "))
-        add_contact(full_info[0], full_info[1], full_info[2])
+        in_request = input("Print, data format: Name, last name, phone number: ")
+        check_request("add", in_request)
 
     if in_request == "delete":
-        in_request = input("Print: Name Last name: ")
-        dell_info = list(in_request.split(" "))
-        delete_contact(dell_info[0], dell_info[1])
+        in_request = input("Print, data format: First name, last name: ")
+        check_request("delete", in_request)
 
     if in_request == "list":
         lst_contact()
 
     if in_request == "show":
-        in_request = input("Print: Name Last name: ")
-        show_info = list(in_request.split(" "))
-        show_contact(show_info[0], show_info[1])
+        in_request = input("Print, data format: First name, last name: ")
+        check_request("show", in_request)
 
     if in_request == "close":
+        print("Phone book is closing")
         exit()
 
 
