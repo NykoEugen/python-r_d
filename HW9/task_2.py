@@ -3,11 +3,24 @@
 
 
 def fibo_number(i):
-    if i <= 1:
-        return i
+    if i == 0:
+        return 0
+    if i == 1:
+        return 1
     else:
-        return fibo_number(i - 1) + fibo_number(i - 2)
+        next_number = fibo_number(i - 1) + fibo_number(i - 2)
+        return next_number
 
 
-print(fibo_number(6))
+def fibo_sequence(n):
+    sequence = []
+    for i in range(n+1):
+        sequence.append(fibo_number(i))
+    return sequence
 
+
+m = 10
+n = fibo_sequence(m)
+print(n)
+
+print(fibo_number(m))

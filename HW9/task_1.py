@@ -4,7 +4,7 @@ def print_number(n):
     if n == 0:
         print("0")
         return
-    print(n, end=" ")
+    print(n, end=", ")
     return print_number(n - 1)
 
 
