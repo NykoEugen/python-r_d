@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import time
 from json import JSONDecodeError
 
@@ -26,6 +27,13 @@ log_file = initialized_json("log_file.json")
 # print(phone_book)
 # print(log_error)
 # print(log_file)
+
+
+def validate_phone_number(phone_number):
+    pattern = r'^(?:\+380|380|0)\d{9}$'
+    if re.match(pattern, phone_number):
+        return True
+    return False
 
 
 # Decorator which loging name of func and time when the func was called
@@ -82,12 +90,17 @@ def statistic():
 def add_contact(first_name, last_name, phone_number):
     frst_name = first_name.capitalize()
     lst_name = last_name.capitalize()
-    try:
-        int(phone_number)
-    except ValueError as e:
-        data = data_error(e)
-        rewrite_json("log_error.json", data)
-        return print(f"Phone number should contain only numeric")
+    valid = validate_phone_number(phone_number)
+    if valid is False:
+        return print("Invalid phone number")
+
+
+    # try:
+    #     int(phone_number)
+    # except ValueError as e:
+    #     data = data_error(e)
+    #     rewrite_json("log_error.json", data)
+    #     return print(f"Phone number should contain only numeric")
 
     if len(phone_book) == 0:
         contact_info = {"name": frst_name,
