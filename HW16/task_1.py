@@ -14,6 +14,9 @@ lst_of_cities = [{"city": "Detroit", "latitude": 42.33, "longitude": -83.05},
 
 multithread_time = []
 mutliproces_time = []
+
+
+#=========MULTITHREAD==========
 def multi_threads(lst):
     result = []
     avrge_temp = []
@@ -60,6 +63,7 @@ def multi_threads(lst):
     result = end - start
     multithread_time.append(result)
     print(f"Multi thread time is {end - start}")
+
 
 def one_thread(lst):
     start = time.time()
@@ -135,8 +139,42 @@ def multiproces(lst):
     mutliproces_time.append(result)
     print(f"Multiprocessing time {end - start}")
 
+
+#=========POOL============
+def request2(ithem):
+    city = ithem.get("city")
+    latitude = ithem.get("latitude")
+    longitude = ithem.get("longitude")
+    print(f"Start for {city}")
+    resp = requests.get(
+            url="https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": latitude,
+                "longitude": longitude,
+                "hourly": "temperature_2m",
+            }
+    )
+    temperature_list = resp.json()["hourly"]["temperature_2m"]
+    avr_temperature = round(sum(temperature_list) / len(temperature_list), 1)
+    temp = {"city": city, "avrg_temp": avr_temperature}
+    print(f"Average temperature for {city} is {avr_temperature}")
+    return temp
+
+
+def pool_proc(lst):
+    with multiprocessing.Pool(5) as p:
+        res = p.map(request2, lst)
+
+    p2 = multiprocessing.Process(target=max_temp, args=(res,))
+    p2.start()
+    p2.join()
+
 if __name__ == "__main__":
     multi_threads(lst_of_cities)
     # one_thread(lst_of_cities)
     multiproces(lst_of_cities)
     print(f"Tread = {multithread_time}, Process = {mutliproces_time}, Result = {mutliproces_time[0] - multithread_time[0]}")
+    start = time.time()
+    pool_proc(lst_of_cities)
+    result = time.time() - start
+    print(f"Tread = {multithread_time}, Process = {mutliproces_time}, Pool = {result}")
