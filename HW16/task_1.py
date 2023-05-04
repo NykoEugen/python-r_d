@@ -1,6 +1,9 @@
+import json
 import multiprocessing
 import threading
 import time
+from json import JSONDecodeError
+
 import requests as requests
 
 lst_of_cities = [{"city": "Detroit", "latitude": 42.33, "longitude": -83.05},
@@ -78,9 +81,8 @@ def one_thread(lst):
     print(f"One thread time is {end - start}")
 
 
-avrge_temp = []
-
-def request(ithem):
+# ========MULTIPROCESS===========
+def request(ithem, queue):
     city = ithem.get("city")
     latitude = ithem.get("latitude")
     longitude = ithem.get("longitude")
@@ -96,8 +98,7 @@ def request(ithem):
     temperature_list = resp.json()["hourly"]["temperature_2m"]
     avr_temperature = round(sum(temperature_list) / len(temperature_list), 1)
     temp = {"city": city, "avrg_temp": avr_temperature}
-    avrge_temp.append(temp)
-
+    queue.put(temp)
     print(f"Average temperature for {city} is {avr_temperature}")
 
 def max_temp(lst):
@@ -109,23 +110,26 @@ def max_temp(lst):
             max_temp = i
     print(f"The {max_temp.get('city')} has biggest temperature {max_temp.get('avrg_temp')}")
 
-
 def multiproces(lst):
     processes = []
+    q = multiprocessing.Queue()
+    lst_temp = []
     start = time.time()
-
     for i in lst:
-        p = multiprocessing.Process(target=request, args=(i, ))
+        p = multiprocessing.Process(target=request, args=(i, q))
         processes.append(p)
         p.start()
 
     for p in processes:
         p.join()
 
-    proc = multiprocessing.Process(target=max_temp, args=(avrge_temp, ))
-    proc.start()
-    proc.join()
+    while not q.empty():
+        a = q.get()
+        lst_temp.append(a)
 
+    p2 = multiprocessing.Process(target=max_temp, args=(lst_temp, ))
+    p2.start()
+    p2.join()
     end = time.time()
     result = end - start
     mutliproces_time.append(result)
