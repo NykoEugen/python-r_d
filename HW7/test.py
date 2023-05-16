@@ -1,4 +1,5 @@
 import json
+import re
 from json import JSONDecodeError
 
 phone_book = []
@@ -30,27 +31,37 @@ contact_info = {"name": "frst_name8",
 # with open("contact.json", "w") as file:
 #     file.write(new_json_data)
 
-file_name = "contact.json"
-def rewrite_json(file_name, new_data):
-    with open(file_name, "r") as file:
-        try:
-            json_data = file.read()
-            print(json_data)
-            print(type(json_data))
-            data = json.loads(json_data)
-            print(data)
-            print(type(data))
-        except JSONDecodeError:
-            data = []
+# file_name = "contact.json"
+# def rewrite_json(file_name, new_data):
+#     with open(file_name, "r") as file:
+#         try:
+#             json_data = file.read()
+#             print(json_data)
+#             print(type(json_data))
+#             data = json.loads(json_data)
+#             print(data)
+#             print(type(data))
+#         except JSONDecodeError:
+#             data = []
+#
+#     data.append(new_data)
+#
+#     new_json_data = json.dumps(data)
+#     print(new_json_data)
+#     print(type(new_json_data))
+#     with open(file_name, "w") as file:
+#         file.write(new_json_data)
+#
+# rewrite_json(file_name, contact_info)
+#
 
-    data.append(new_data)
-
-    new_json_data = json.dumps(data)
-    print(new_json_data)
-    print(type(new_json_data))
-    with open(file_name, "w") as file:
-        file.write(new_json_data)
-
-rewrite_json(file_name, contact_info)
+def validate_phone_number(phone_number):
+    pattern = r'^(?:\+380|380|0)\d{9}$'
+    if re.match(pattern, phone_number):
+        return True
+    return False
 
 
+number = "+380973332211"
+valid = validate_phone_number(number)
+print(valid)
