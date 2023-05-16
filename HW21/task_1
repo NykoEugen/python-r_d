@@ -12,5 +12,5 @@ INSERT INTO users(first_name, last_name, age) VALUES ("Alex", "Fox", 22), ("Fran
 INSERT INTO users(first_name, last_name) VALUES ("Bart", "Simpson");
 
 
-CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT NOT NULL UNIQUE ,
-last_name TEXT NOT NULL UNIQUE , age INTEGER DEFAULT 18);
+CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT NOT NULL,
+last_name TEXT NOT NULL, age INTEGER DEFAULT 18,  UNIQUE (first_name, last_name));
