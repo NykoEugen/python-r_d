@@ -4,7 +4,11 @@ Bot = type("Bot", (), {'__init__': lambda self, name: setattr(self, 'name', name
 
 
 TelegramBot = type("TelegramBot", (Bot, ), {
-    '__init__': lambda self, name, url=None, chat_id=None: Bot.__init__(self, name),
+    "__init__": lambda self, name, url=None, chat_id=None: (
+        setattr(self, "url", url),
+        setattr(self, "chat_id", chat_id),
+        self.__class__.__bases__[0].__init__(self, name),
+    )[-1],
     'set_url': lambda self, url: setattr(self, 'url', url),
     'set_chat_id': lambda self, chat_id: setattr(self, 'chat_id', chat_id),
     'send_message': lambda self, message: print(f"{getattr(self, 'name')} bot say {message} "

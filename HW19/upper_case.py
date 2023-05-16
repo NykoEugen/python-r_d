@@ -1,10 +1,6 @@
 class MyStr(str):
-    def __init__(self, text):
-        self.text = text
-
     def __str__(self):
-        upper_text = self.text.upper()
-        return upper_text
+        return self.upper()
 
 
 my_str = MyStr("test text")

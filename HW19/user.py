@@ -3,10 +3,7 @@ class User:
         self.name = name.lower()
 
     def __eq__(self, other):
-        if self.name == other:
-            return True
-        else:
-            return False
+        return self.name.lower() == other.name.lower()
 
 
 user1 = User("Alex")
