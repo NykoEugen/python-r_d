@@ -1,0 +1,32 @@
+SELECT users.id, users.first_name, users.last_name,
+SUM(books.price) AS total_purchases
+FROM users
+JOIN purchases ON users.id = purchases.user_id
+Join books ON purchases.book_id = books.id
+GROUP BY user_id
+
+
+SELECT users.id, COUNT(*) AS purchase_count
+FROM users
+JOIN purchases ON users.id = purchases.user_id
+Join books ON purchases.book_id = books.id
+GROUP BY user_id
+
+
+SELECT COUNT(*) AS amount
+FROM purchase
+JOIN books ON purchases.book_id = books.id
+WHERE author = 'Rowling'
+
+
+SELECT books.author, COUNT(*) AS amount, SUM(books.price) AS total_price
+FROM purchases
+JOIN books ON purchases.book_id = books.id
+GROUP BY books.author
+
+
+SELECT books.title, COUNT(*) AS total_purchases
+FROM purchases
+JOIN books ON purchases.book_id = books.id
+GROUP BY book_id
+ORDER BY total_purchases DESC
