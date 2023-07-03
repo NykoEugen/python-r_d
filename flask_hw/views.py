@@ -174,7 +174,7 @@ def not_found_error(error):
     return requests, 500
 
 
-@app.get('/links')
+@app.get('/')
 def links_list():
     requests = f'''
     <table>
