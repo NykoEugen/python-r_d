@@ -1,7 +1,7 @@
 import random
 import re
 
-from flask import request, abort, redirect
+from flask import request, abort, redirect, render_template, session
 
 from app import app
 
@@ -13,111 +13,122 @@ book_list = [{'id': 1, 'title': 'Duna'}, {'id': 2, 'title': 'Inferno'}, {'id': 3
 
 @app.get('/users')
 def users_list():
-    count = request.args.get('count')
-    if count:
-        count_int = int(count)
+    email = session.get('email')
+    if session_username(email):
+        count = request.args.get('count')
+        if count:
+            count_int = int(count)
+        else:
+            count_int = random.randint(1, 50)
+
+        user_lst = []
+        for i in range(count_int):
+            random_item = random.choice(user_list)
+            random_name = random_item['name']
+            user_lst.append(random_name)
+        users_lst = [user for user in user_lst]
+
+        user_name = print_username()
+        context = {
+            'username': user_name,
+            'title': 'Users list',
+            'users': users_lst,
+        }
+        return render_template('main/users.html', **context), 200
     else:
-        count_int = random.randint(1, 50)
-
-    user_lst = []
-    for i in range(count_int):
-        random_item = random.choice(user_list)
-        random_name = random_item['name']
-        user_lst.append(random_name)
-    users_html = ''.join(f'<li>{user}</li>'
-                         for user in user_lst)
-
-    response = f'''
-    <h1>Users List</h1>
-    <ul>
-        {users_html}
-    </ul>
-    '''
-    return response, 200
+        return redirect('/login')
 
 
 @app.get('/books')
 def books_list():
-    count = request.args.get('count')
-    if count:
-        count_int = int(count)
+    email = session.get('email')
+    if session_username(email):
+
+        count = request.args.get('count')
+        if count:
+            count_int = int(count)
+        else:
+            count_int = random.randint(1, 50)
+        book_lst = []
+        for i in range(count_int):
+            random_item = random.choice(book_list)
+            random_title = random_item['title']
+            book_lst.append(random_title)
+        books_lst = [book for book in book_lst]
+
+        context = {
+            'title': 'Book list',
+            'books': books_lst,
+            'username': print_username(),
+        }
+        return render_template('main/books.html', **context), 200
     else:
-        count_int = random.randint(1, 50)
-
-    book_lst = []
-    for i in range(count_int):
-        random_item = random.choice(book_list)
-        random_title = random_item['title']
-        book_lst.append(random_title)
-    books_html = ''.join(f'<li>{book}</li>'
-                         for book in book_lst)
-
-    response = f'''
-        <h1>Users List</h1>
-        <ul>
-            {books_html}
-        </ul>
-        '''
-    return response, 200
+        return redirect('/login')
 
 
 @app.get('/users/<user_id>')
 def user_detail(user_id):
-    try:
-        user_id_int = int(user_id)
-    except ValueError:
-        abort(400, 'Invalid task id')
+    email = session.get('email')
+    if session_username(email):
+        try:
+            user_id_int = int(user_id)
+        except ValueError:
+            abort(400, 'Invalid task id')
 
-    user = None
-    if not user_id_int % 2:
-        for item in user_list:
-            if user_id_int == item['id']:
-                user = item
-                break
+        user = None
+        if not user_id_int % 2:
+            for item in user_list:
+                if user_id_int == item['id']:
+                    user = item
+                    break
 
-    if not user:
-        abort(404, 'User not found')
+        if not user:
+            abort(404, 'User not found')
 
-    response = f'''
-    <h1>{user['name']}</h1>'''
-    return response, 200
+        context = {
+            'user': user,
+            'title': 'User detail',
+            'username': print_username(),
+        }
+        return render_template('main/user_detail.html', **context), 200
+    else:
+        return redirect('/login')
 
 
 @app.get('/books/<title>')
 def book_title(title):
-    new_title = title.capitalize()
+    email = session.get('email')
+    if session_username(email):
+        new_title = title.capitalize()
 
-    response = f'''
-    <h1>{new_title}</h1>'''
-    return response, 200
+        context = {
+            'book_title': new_title,
+            'title': 'Book detail',
+            'username': print_username(),
+        }
+        return render_template('main/book_title.html', **context), 200
+    else:
+        return redirect('/login')
+
 
 
 @app.get('/params')
 def params():
-    name = request.args.get('name')
-    age = request.args.get('age')
+    email = session.get('email')
+    if session_username(email):
+        name = request.args.get('name')
+        age = request.args.get('age')
 
-    requests = f'''
-    <table>
-        <tr>
-            <th>parameter</th>
-            <th>|</th>
-            <th>value</th>
-        </tr>
-        <tr>
-            <td>name</td>
-            <td>|</td>
-            <td>{name}</td>
-        </tr>
-        <tr>
-            <td>age</td>
-            <td>|</td>
-            <td>{age}</td>
-        </tr>
-    </table>
-    '''
+        context = {
+            'name': name,
+            'age': age,
+            'title': 'Parameters',
+            'username': print_username(),
+        }
 
-    return requests, 200
+        return render_template('main/params.html', **context), 200
+    else:
+        return redirect('/login')
 
 
 def password_valid(password):
@@ -140,6 +151,7 @@ def login():
         if len(email) >= 5:
             validator = password_valid(password)
             if validator:
+                session['email'] = email
                 return redirect('/users')
             else:
                 abort(400, 'Invalid password')
@@ -147,15 +159,27 @@ def login():
             abort(400, 'Invalid data')
 
     else:
-        return f'''
-            <form method="POST" action="/login">
-                <label for="email">Email:</label>
-                <input type="email" name="email" id="email"><br><br>
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password"><br><br>
-                <input type="submit" value="Submit">
-            </form>
-            '''
+        return render_template('main/login.html'), 200
+
+
+@app.route('/logout')
+def logout():
+    session.pop('email', None)
+    return redirect('/login')
+
+
+def session_username(email):
+    if session.get('email') is None:
+        return False
+    elif session.get('email') == email:
+        return True
+    else:
+        return False
+
+
+def print_username():
+    username = session.get('email')
+    return username
 
 
 @app.errorhandler(404)
@@ -175,13 +199,19 @@ def not_found_error(error):
 
 
 @app.get('/')
-def links_list():
-    requests = f'''
-    <table>
-        <tr><td><a href=127.0.0.1:5000/login">login</a></td></tr>
-        <tr><td><a href=127.0.0.1:5000/users">users</a></td></tr>
-        <tr><td><a href=127.0.0.1:5000/books">books</a></td></tr>
-        <tr><td><a href=127.0.0.1:5000/params">params</a></td></tr>
-    </table>
-    '''
-    return requests, 200
+def link_list():
+    login = '/login'
+    logout = '/logout'
+    users = '/users'
+    books = '/books'
+    params = '/params'
+    context = {
+        'title': 'Book store',
+        'login': login,
+        'logout': logout,
+        'users': users,
+        'books': books,
+        'params': params,
+    }
+
+    return render_template('base.html', **context), 200

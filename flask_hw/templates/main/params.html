@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block body %}
+    <p id="username">Hello <strong>{{ username }}</strong></p>
+    <h1>{{ title }}</h1>
+    <table>
+        <tr>
+            <th>parameter</th>
+            <th>|</th>
+            <th>value</th>
+        </tr>
+        <tr>
+            <td>name</td>
+            <td>|</td>
+            <td>{{ name }}</td>
+        </tr>
+        <tr>
+            <td>age</td>
+            <td>|</td>
+            <td>{{ age }}</td>
+        </tr>
+    </table>
+{% endblock %}
