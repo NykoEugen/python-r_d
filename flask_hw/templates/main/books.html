@@ -6,7 +6,7 @@
     <ul>
         {% for book in books %}
             <li>
-                {{ book }}
+                {{ book.id }}. {{ book.title }} {{ book.author }} {{ book.price }}
             </li>
         {% endfor %}
     </ul>

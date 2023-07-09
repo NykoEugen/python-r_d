@@ -3,5 +3,5 @@
 {% block body %}
     <p id="username">Hello <strong>{{ username }}</strong></p>
     <h1>{{ title }}</h1>
-    <strong>{{ book_title }}</strong>
+    <strong>{{ book.id }}. {{ book.title }} {{ book.author }} {{ book.price }}</strong>
 {% endblock %}
