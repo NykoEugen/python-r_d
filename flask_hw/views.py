@@ -47,19 +47,32 @@ def session_username(func):
     return wrapper
 
 
+def int_validator(param_num):
+    if param_num:
+        try:
+            param_int = int(param_num)
+        except ValueError:
+            return 'Invalid parameter size', 400
+    else:
+        param_int = None
+    return param_int
+
+
 @app.get('/users')
 @session_username
 def users_list():
-    query = db.select(Users)
-    users = db.session.execute(query).scalars()
-    user_name = print_username()
-    context = {
-        'username': user_name,
-        'title': 'Users list',
-        'users': users,
-    }
-
     response_param = request.args.get('format')
+    size = request.args.get('size')
+    user_name = print_username()
+
+    size_int = int_validator(size)
+    query = db.session.query(Users)
+    if size_int is not None:
+        query = query.limit(size_int)
+        users = db.session.execute(query).scalars()
+    else:
+        query = db.select(Users)
+        users = db.session.execute(query).scalars()
 
     if response_param == 'json':
         req = [{'id': user.id, 'first_name': user.first_name,
@@ -67,16 +80,29 @@ def users_list():
                for user in users]
         return req
 
+    context = {
+        'username': user_name,
+        'title': 'Users list',
+        'users': users,
+    }
+
     return render_template('main/users.html', **context), 200
 
 
 @app.get('/books')
 @session_username
 def books_list():
-    query = db.select(Books)
-    books = db.session.execute(query).scalars()
-
     response_param = request.args.get('format')
+    size = request.args.get('size')
+
+    size_int = int_validator(size)
+    query = db.session.query(Books)
+    if size_int is not None:
+        query = query.limit(size_int)
+        books = db.session.execute(query).scalars()
+    else:
+        query = db.select(Books)
+        books = db.session.execute(query).scalars()
 
     if response_param == 'json':
         req = [{'id': book.id, 'title': book.title,
@@ -141,14 +167,20 @@ def book_title(book_id):
 @app.get('/purchases')
 @session_username
 def purchases():
+    response_param = request.args.get('format')
+    size = request.args.get('size')
+    size_int = int_validator(size)
+
     query = db.session.query(Users.id, Users.first_name, Users.last_name,
-                             Books.title, Books.author) \
+                             Books.title, Books.author, ) \
         .join(Purchase, Users.id == Purchase.user_id) \
         .join(Books, Purchase.book_id == Books.id) \
         .order_by(Users.id)
-    result = query.all()
 
-    response_param = request.args.get('format')
+    if size_int is not None:
+        query = query.limit(size_int)
+
+    result = query.all()
 
     if response_param == 'json':
         req = [{'id': item.id, 'first_name': item.first_name,
@@ -183,7 +215,6 @@ def purchase_detail(purchase_id):
         .join(Books, Purchase.book_id == Books.id) \
         .filter(Purchase.id == purchase_id_int)
     result = query.all()
-    print(result)
     context = {
         'purchases': result,
         'title': 'Purchase cart',
