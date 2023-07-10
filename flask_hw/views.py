@@ -239,6 +239,72 @@ def params():
     return render_template('main/params.html', **context), 200
 
 
+@app.post('/users')
+@session_username
+def add_user():
+    if request.content_type == 'application/json':
+        data = request.get_json()
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+
+    elif request.content_type == 'application/x-www-form-urlencoded':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+
+    query = Users(first_name=first_name, last_name=last_name)
+    db.session.add(query)
+    db.session.commit()
+
+    return 'User added successful'
+
+
+@app.post('/books')
+@session_username
+def add_book():
+    if request.content_type == 'application/json':
+        data = request.get_json()
+        title = data.get('title')
+        author = data.get('author')
+        price = data.get('price')
+
+    elif request.content_type == 'application/x-www-form-urlencoded':
+        title = request.form['title']
+        author = request.form['author']
+        price = request.form['price']
+
+    query = Books(title=title, author=author, price=price)
+    db.session.add(query)
+    db.session.commit()
+    return 'Book was add successful'
+
+
+@app.post('/purchases')
+@session_username
+def check_purchase():
+    if request.content_type == 'application/json':
+        data = request.get_json()
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        book_title = data.get('book_title')
+
+    if request.content_type == 'application/x-www-form-urlencoded':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        book_title = request.form['book_title']
+
+    query = db.session.query(Users.first_name, Users.last_name,
+                             Books.title) \
+        .join(Purchase, Users.id == Purchase.user_id) \
+        .join(Books, Purchase.book_id == Books.id) \
+        .filter(Users.first_name == first_name, Users.last_name == last_name, Books.title == book_title).first()
+
+
+    if query:
+        return 'Found'
+    else:
+        return 'Not found'
+
+
 def password_valid(password):
     pattern = r'^(?=.*\d)(?=.*[A-Z]).{8,}$'
     if re.match(pattern, password):
