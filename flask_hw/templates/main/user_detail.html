@@ -3,5 +3,5 @@
 {% block body %}
     <p id="username">Hello <strong>{{ username }}</strong></p>
     <h1>{{ title }}</h1>
-    <strong>{{ user['id'] }} {{ user['name'] }}</strong>
+    <strong>{{ user.id }}. {{ user.first_name }} {{ user.last_name }}</strong>
 {% endblock %}

@@ -1,10 +1,12 @@
+import json
 import random
 import re
 from functools import wraps
 
-from flask import request, abort, redirect, render_template, session
+from flask import request, abort, redirect, render_template, session, jsonify
 
-from app import app
+from app import app, db
+from models import *
 
 user_list = [{'id': 1, 'name': 'Eugen'}, {'id': 2, 'name': 'Max'}, {'id': 3, 'name': 'David'},
              {'id': 4, 'name': 'Fox'}, ]
@@ -37,56 +39,80 @@ def login():
 
 def session_username(func):
     @wraps(func)
-    def wrapper():
+    def wrapper(*args, **kwargs):
         if session.get('email') is None:
             return redirect('/login')
-        return func()
+        return func(*args, **kwargs)
+
     return wrapper
+
+
+def int_validator(param_num):
+    if param_num:
+        try:
+            param_int = int(param_num)
+        except ValueError:
+            return 'Invalid parameter size', 400
+    else:
+        param_int = None
+    return param_int
 
 
 @app.get('/users')
 @session_username
 def users_list():
-    count = request.args.get('count')
-    if count:
-        count_int = int(count)
-    else:
-        count_int = random.randint(1, 50)
-
-    user_lst = []
-    for i in range(count_int):
-        random_item = random.choice(user_list)
-        random_name = random_item['name']
-        user_lst.append(random_name)
-    users_lst = [user for user in user_lst]
-
+    response_param = request.args.get('format')
+    size = request.args.get('size')
     user_name = print_username()
+
+    size_int = int_validator(size)
+    query = db.session.query(Users)
+    if size_int is not None:
+        query = query.limit(size_int)
+        users = db.session.execute(query).scalars()
+    else:
+        query = db.select(Users)
+        users = db.session.execute(query).scalars()
+
+    if response_param == 'json':
+        req = [{'id': user.id, 'first_name': user.first_name,
+                'last name': user.last_name, }
+               for user in users]
+        return req
+
     context = {
         'username': user_name,
         'title': 'Users list',
-        'users': users_lst,
+        'users': users,
     }
+
     return render_template('main/users.html', **context), 200
 
 
 @app.get('/books')
 @session_username
 def books_list():
-    count = request.args.get('count')
-    if count:
-        count_int = int(count)
+    response_param = request.args.get('format')
+    size = request.args.get('size')
+
+    size_int = int_validator(size)
+    query = db.session.query(Books)
+    if size_int is not None:
+        query = query.limit(size_int)
+        books = db.session.execute(query).scalars()
     else:
-        count_int = random.randint(1, 50)
-    book_lst = []
-    for i in range(count_int):
-        random_item = random.choice(book_list)
-        random_title = random_item['title']
-        book_lst.append(random_title)
-    books_lst = [book for book in book_lst]
+        query = db.select(Books)
+        books = db.session.execute(query).scalars()
+
+    if response_param == 'json':
+        req = [{'id': book.id, 'title': book.title,
+                'author': book.author, 'price': book.price, }
+               for book in books]
+        return req
 
     context = {
         'title': 'Book list',
-        'books': books_lst,
+        'books': books,
         'username': print_username(),
     }
     return render_template('main/books.html', **context), 200
@@ -98,17 +124,14 @@ def user_detail(user_id):
     try:
         user_id_int = int(user_id)
     except ValueError:
-        abort(400, 'Invalid task id')
+        abort(400, 'Invalid user id')
 
-    user = None
-    if not user_id_int % 2:
-        for item in user_list:
-            if user_id_int == item['id']:
-                user = item
-                break
-
-    if not user:
+    query_count = db.session.query(Users).count()
+    if user_id_int > query_count:
         abort(404, 'User not found')
+
+    query = db.select(Users).where(Users.id == user_id_int)
+    user = db.session.execute(query).scalars().first()
 
     context = {
         'user': user,
@@ -118,17 +141,86 @@ def user_detail(user_id):
     return render_template('main/user_detail.html', **context), 200
 
 
-@app.get('/books/<title>')
+@app.get('/books/<book_id>')
 @session_username
-def book_title(title):
-    new_title = title.capitalize()
+def book_title(book_id):
+    try:
+        book_id_int = int(book_id)
+    except ValueError:
+        abort(400, 'Invalid user id')
+
+    query_count = db.session.query(Books).count()
+    if book_id_int > query_count:
+        abort(404, 'Book not found')
+
+    query = db.select(Books).where(Books.id == book_id_int)
+    book = db.session.execute(query).scalars().first()
 
     context = {
-        'book_title': new_title,
+        'book': book,
         'title': 'Book detail',
         'username': print_username(),
     }
     return render_template('main/book_title.html', **context), 200
+
+
+@app.get('/purchases')
+@session_username
+def purchases():
+    response_param = request.args.get('format')
+    size = request.args.get('size')
+    size_int = int_validator(size)
+
+    query = db.session.query(Users.id, Users.first_name, Users.last_name,
+                             Books.title, Books.author, ) \
+        .join(Purchase, Users.id == Purchase.user_id) \
+        .join(Books, Purchase.book_id == Books.id) \
+        .order_by(Users.id)
+
+    if size_int is not None:
+        query = query.limit(size_int)
+
+    result = query.all()
+
+    if response_param == 'json':
+        req = [{'id': item.id, 'first_name': item.first_name,
+                'last name': item.last_name, 'title': item.title,
+                'author': item.author, }
+               for item in result]
+        return req
+
+    context = {
+        'purchases': result,
+        'title': 'Purchase cart',
+        'username': print_username(),
+    }
+    return render_template('main/purchases.html', **context), 200
+
+
+@app.get('/purchases/<purchase_id>')
+@session_username
+def purchase_detail(purchase_id):
+    try:
+        purchase_id_int = int(purchase_id)
+    except ValueError:
+        abort(400, 'Invalid user id')
+
+    query_count = db.session.query(Purchase).count()
+    if purchase_id_int > query_count:
+        abort(404, 'Purchase number not found')
+
+    query = db.session.query(Users.id, Users.first_name, Users.last_name,
+                             Books.title, Books.author) \
+        .join(Purchase, Users.id == Purchase.user_id) \
+        .join(Books, Purchase.book_id == Books.id) \
+        .filter(Purchase.id == purchase_id_int)
+    result = query.all()
+    context = {
+        'purchases': result,
+        'title': 'Purchase cart',
+        'username': print_username(),
+    }
+    return render_template('main/purchase_detail.html', **context), 200
 
 
 @app.get('/params')
@@ -145,6 +237,72 @@ def params():
     }
 
     return render_template('main/params.html', **context), 200
+
+
+@app.post('/users')
+@session_username
+def add_user():
+    if request.content_type == 'application/json':
+        data = request.get_json()
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+
+    elif request.content_type == 'application/x-www-form-urlencoded':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+
+    query = Users(first_name=first_name, last_name=last_name)
+    db.session.add(query)
+    db.session.commit()
+
+    return 'User added successful'
+
+
+@app.post('/books')
+@session_username
+def add_book():
+    if request.content_type == 'application/json':
+        data = request.get_json()
+        title = data.get('title')
+        author = data.get('author')
+        price = data.get('price')
+
+    elif request.content_type == 'application/x-www-form-urlencoded':
+        title = request.form['title']
+        author = request.form['author']
+        price = request.form['price']
+
+    query = Books(title=title, author=author, price=price)
+    db.session.add(query)
+    db.session.commit()
+    return 'Book was add successful'
+
+
+@app.post('/purchases')
+@session_username
+def check_purchase():
+    if request.content_type == 'application/json':
+        data = request.get_json()
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        book_title = data.get('book_title')
+
+    if request.content_type == 'application/x-www-form-urlencoded':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        book_title = request.form['book_title']
+
+    query = db.session.query(Users.first_name, Users.last_name,
+                             Books.title) \
+        .join(Purchase, Users.id == Purchase.user_id) \
+        .join(Books, Purchase.book_id == Books.id) \
+        .filter(Users.first_name == first_name, Users.last_name == last_name, Books.title == book_title).first()
+
+
+    if query:
+        return 'Found'
+    else:
+        return 'Not found'
 
 
 def password_valid(password):
@@ -166,12 +324,12 @@ def print_username():
     return username
 
 
-@app.errorhandler(404)
-def not_found_error(error):
-    requests = f'''
-    <p1>The page you are looking for does not exist</p1>
-    '''
-    return requests, 404
+# @app.errorhandler(404)
+# def not_found_error(error):
+#     requests = f'''
+#     <p1>The page you are looking for does not exist</p1>
+#     '''
+#     return requests, 404
 
 
 @app.errorhandler(500)
