@@ -18,7 +18,6 @@ def users_list(request):
         timestamp = item['date_joined']
         first_name = item['first_name']
         last_name = item['last_name']
-        print(timestamp)
         user = {'id': pk,
                 'username': username,
                 'email': email,
