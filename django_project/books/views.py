@@ -5,15 +5,15 @@ from books.models import Book
 
 
 def books_list(request):
-    books = Book.objects.all()
+    books = Book.objects.all().values()
     books_dict = []
     for item in books:
-        id = item.id
-        title = item.title
-        author = item.author
-        price = item.price
+        pk = item['id']
+        title = item['title']
+        author = item['author']
+        price = item['price']
         book = {
-            'id': id,
+            'id': pk,
             'title': title,
             'author': author,
             'price': price,

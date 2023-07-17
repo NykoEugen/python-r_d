@@ -2,9 +2,9 @@ from django.db import models
 
 
 class Book(models.Model):
-    title = models.TextField()
-    author = models.TextField()
-    price = models.TextField()
+    title = models.CharField(max_length=30)
+    author = models.CharField(max_length=30)
+    price = models.IntegerField()
 
     class Meta:
         db_table = 'books'
