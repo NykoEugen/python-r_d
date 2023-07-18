@@ -1,0 +1,7 @@
+<h1>User list</h1>
+<ul>
+    {% for obj in object_list %}
+        <li>{{ obj.id }} {{ obj.username }} {{ obj.date_joined }}
+            {{ obj.first_name }} {{ obj.last_name }}</li>
+    {% endfor %}
+</ul>
