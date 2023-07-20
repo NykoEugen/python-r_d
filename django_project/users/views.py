@@ -3,37 +3,38 @@ from datetime import time
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from users.models import User
 
 
-# Create your views here.
-# def users_list(request):
-#     users = User.objects.all().values()
-#     users_dict = []
-#     for item in users:
-#         pk = item['id']
-#         username = item['username']
-#         email = item['email']
-#         timestamp = item['date_joined']
-#         first_name = item['first_name']
-#         last_name = item['last_name']
-#         user = {'id': pk,
-#                 'username': username,
-#                 'email': email,
-#                 'date': timestamp,
-#                 'first_name': first_name,
-#                 'last_name': last_name,
-#                 }
-#         users_dict.append(user)
-#     return JsonResponse(users_dict, safe=False)
-
-
 class UserListView(ListView):
     model = User
+    template_name = 'users/user_list.html'
 
 
 class UserDetailView(DetailView):
     model = User
+    template_name = 'users/user_detail.html'
+    context_object_name = 'user'
+
+
+class UserCreateView(CreateView):
+    model = User
+    template_name = 'users/user_create.html'
+    fields = ('username', 'password', 'email', 'first_name', 'last_name',)
+    success_url = reverse_lazy('users:user-list')
+
+
+class UserUpdateView(UpdateView):
+    model = User
+    template_name = 'users/user_update.html'
+    fields = ('email', 'first_name', 'last_name',)
+
+
+class UserDeleteView(DeleteView):
+    model = User
+    template_name = 'users/user_delete.html'
+    success_url = reverse_lazy('users:user-list')
     context_object_name = 'user'
