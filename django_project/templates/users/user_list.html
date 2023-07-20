@@ -5,3 +5,5 @@
             {{ obj.first_name }} {{ obj.last_name }}</li>
     {% endfor %}
 </ul>
+
+<a href={% url 'users:user-create' %}>Create new user</a>

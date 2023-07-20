@@ -2,3 +2,5 @@
 <p>Book: {{ purchase.book.title }}</p>
 <p>User: {{ purchase.user.username }}</p>
 <p>Price: {{ purchase.book.price }}</p>
+
+<div><a href={% url 'purchases:purchase-list' %}>List of purchases</a></div>
