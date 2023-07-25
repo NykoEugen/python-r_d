@@ -1,35 +1,14 @@
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
 
 from purchases.models import Purchase
 
 
-# def purchases_list(request):
-#     purchases = Purchase.objects.select_related('user', 'book').\
-#         values('user__username', 'book__title', 'book__author', 'book__price', 'created_at')
-#     purchases_dict = []
-#
-#     for item in purchases:
-#         created_at = item['created_at']
-#         username = item['user__username']
-#         title = item['book__title']
-#         author = item['book__author']
-#         price = item['book__price']
-#         purchase = {
-#             'user': username,
-#             'book': title,
-#             'time': created_at,
-#             'author': author,
-#             'price': price,
-#         }
-#         purchases_dict.append(purchase)
-#
-#     return JsonResponse(purchases_dict, safe=False)
-
-
 class PurchaseListView(ListView):
     model = Purchase
+    template_name = 'purchases/purchase_list.html'
 
     def get_queryset(self):
         return Purchase.objects.select_related('user', 'book')
@@ -37,7 +16,30 @@ class PurchaseListView(ListView):
 
 class PurchaseDetailView(DetailView):
     model = Purchase
+    template_name = 'purchases/purchase_detail.html'
     context_object_name = 'purchase'
 
     def get_queryset(self):
         return Purchase.objects.select_related('user', 'book')
+
+
+class PurchaseCreateView(CreateView):
+    model = Purchase
+    template_name = 'purchases/purchase_create.html'
+    fields = ('user', 'book',)
+    success_url = reverse_lazy('purchases:purchase-list')
+
+
+class PurchaseUpdateView(UpdateView):
+    model = Purchase
+    template_name = 'purchases/purchase_update.html'
+    context_object_name = 'purchase'
+    fields = ('user', 'book',)
+    success_url = reverse_lazy('purchases:purchase-list')
+
+
+class PurchaseDeleteView(DeleteView):
+    model = Purchase
+    template_name = 'purchases/purchase_delete.html'
+    success_url = reverse_lazy('purchases:purchase-list')
+    context_object_name = 'purchase'

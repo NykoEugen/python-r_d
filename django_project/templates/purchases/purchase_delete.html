@@ -1,0 +1,7 @@
+<h1>Delete Purchase</h1>
+<p>Are you sure you want to delete purchase <strong>{{ purchase.id }}</strong> ?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+    <a href="{% url 'purchases:purchase-detail' pk=purchase.id %}">Cancel</a>
+</form>

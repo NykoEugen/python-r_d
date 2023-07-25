@@ -4,3 +4,4 @@
         <li>{{ obj.id }}. {{ obj.user.username }}, {{ obj.book.title }}, {{ obj.book.price }}</li>
     {% endfor %}
 </ul>
+<a href="{% url 'purchases:purchase-create' %}">Create New Purchase</a>
