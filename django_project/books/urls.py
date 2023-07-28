@@ -1,6 +1,8 @@
 from django.urls import path
+from rest_framework.routers import SimpleRouter
 
 from books import views
+from books.api import views as api_views
 
 app_name = 'books'
 
@@ -11,3 +13,8 @@ urlpatterns = [
     path('<int:pk>/update/', views.BookUpdateView.as_view(), name='book-update'),
     path('<int:pk>/delete/', views.BookDeleteView.as_view(), name='book-delete'),
 ]
+
+router = SimpleRouter()
+router.register('api', api_views.BookModelViewSet)
+
+urlpatterns += router.urls
