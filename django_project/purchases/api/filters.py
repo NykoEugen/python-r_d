@@ -7,5 +7,6 @@ class PurchaseFilter(django_filters.FilterSet):
     class Meta:
         model = Purchase
         fields = {
-            'created_at': ['exact', 'lte', 'gte'],
+            'user__id': ['exact'],
+            'book__title': ['exact']
         }

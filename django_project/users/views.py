@@ -2,17 +2,20 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from users.models import User
+from users.tasks import print_message, count_purchase
 
 
 class UserListView(ListView):
     model = User
     template_name = 'users/user_list.html'
+    print_message.delay('User list')
 
 
 class UserDetailView(DetailView):
     model = User
     template_name = 'users/user_detail.html'
     context_object_name = 'user'
+    count_purchase.delay(User.pk)
 
 
 class UserCreateView(CreateView):
