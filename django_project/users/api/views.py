@@ -6,6 +6,7 @@ from users.api.filters import UserFilter
 from users.api.pagination import CustomPagination
 from users.api.serializer import UserSerializer
 from users.models import User
+from users.tasks import count_purchase
 
 
 class UserModelViewSet(ModelViewSet):
@@ -17,3 +18,4 @@ class UserModelViewSet(ModelViewSet):
     searching_field = ('username', 'first_name', 'last_name',)
     ordering_fields = ('id',)
     pagination_class = CustomPagination
+    count_purchase.delay(2)
