@@ -15,7 +15,6 @@ class UserDetailView(DetailView):
     model = User
     template_name = 'users/user_detail.html'
     context_object_name = 'user'
-    count_purchase.delay(User.pk)
 
 
 class UserCreateView(CreateView):
