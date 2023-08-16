@@ -30,13 +30,13 @@ class UserViewSetTest(TestCase):
             'username': 'testuser',
             'email': 'test@mail.com',
             'password': 'testpasword',
-            'first_name': 'Test',
-            'last_name': 'User'
+            'first_name': 'Test1',
+            'last_name': 'User1'
         }
         self.create_url = reverse('users:user-create')
 
     def test_create_user(self):
-        response = self.client.post(self.create_url, self.user_data, format='json')
+        response = self.client.post('/users/api/', self.user_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 1)
         self.assertEqual(User.objects.get().username, 'testuser')
