@@ -1,4 +1,5 @@
 <h1>User list</h1>
+<p>{{ celery_message }}</p>
 <ul>
     {% for obj in object_list %}
         <li>{{ obj.id }} {{ obj.username }} {{ obj.date_joined }}

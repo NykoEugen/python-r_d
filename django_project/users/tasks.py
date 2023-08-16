@@ -4,8 +4,8 @@ from users.models import User
 
 
 @shared_task
-def print_message(message):
-    print(f'Some message: {message}')
+def print_message():
+    print(f'Some message')
 
 
 @shared_task
