@@ -2,7 +2,7 @@
 # — створити свою функцію
 
 def biggest_arg(*args):
-    biggest_argument = 0
+    biggest_argument = float('-inf')
     for i in args:
         if i > biggest_argument:
             biggest_argument = i
@@ -10,4 +10,4 @@ def biggest_arg(*args):
     return biggest_argument
 
 
-print(biggest_arg(10, 25, 1, 15, 35, 158, 21, 2, 68 ))
+# print(biggest_arg(10, 25, 1, 15, 35, 158, 21, 2, 68))

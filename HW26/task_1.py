@@ -10,6 +10,3 @@ def request_web():
     res = requests.get(url=random_url, stream=True)
     html_text = res.text
     print(f"Status code: {res.status_code}, URL: {res.url}, length html code: {len(html_text)}")
-
-
-request_web()

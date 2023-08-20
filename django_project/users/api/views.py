@@ -18,4 +18,4 @@ class UserModelViewSet(ModelViewSet):
     searching_field = ('username', 'first_name', 'last_name',)
     ordering_fields = ('id',)
     pagination_class = CustomPagination
-    count_purchase.delay(2)
+    # count_purchase.delay(2)

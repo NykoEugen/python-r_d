@@ -95,13 +95,6 @@ def add_contact(first_name, last_name, phone_number):
         return print("Invalid phone number")
 
 
-    # try:
-    #     int(phone_number)
-    # except ValueError as e:
-    #     data = data_error(e)
-    #     rewrite_json("log_error.json", data)
-    #     return print(f"Phone number should contain only numeric")
-
     if len(phone_book) == 0:
         contact_info = {"name": frst_name,
                         "last_name": lst_name,

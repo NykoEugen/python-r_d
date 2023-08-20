@@ -8,13 +8,17 @@ from users.tasks import print_message, count_purchase
 class UserListView(ListView):
     model = User
     template_name = 'users/user_list.html'
-    print_message.delay('User list')
+
+    def get_queryset(self):
+        print_message.delay()
+        return super().get_queryset()
 
 
 class UserDetailView(DetailView):
     model = User
     template_name = 'users/user_detail.html'
     context_object_name = 'user'
+    print_message.delay()
 
 
 class UserCreateView(CreateView):
